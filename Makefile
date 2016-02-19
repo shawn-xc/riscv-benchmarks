@@ -17,6 +17,7 @@ instbasedir = $(UCB_VLSI_HOME)/install
 
 bmarks = \
 	median \
+	mt-vvadd \
 	qsort \
 	rsort \
 	towers \
@@ -25,11 +26,11 @@ bmarks = \
 	mm \
 	dhrystone \
 	spmv \
-	mt-vvadd \
 	mt-matmul \
 
 bmarks_host = \
 	median \
+	mt-vvadd \
 	qsort \
 	towers \
 	vvadd \
@@ -58,7 +59,7 @@ RISCV_SIM = spike
 VPATH += $(addprefix $(bmarkdir)/, $(bmarks))
 VPATH += $(bmarkdir)/common
 
-incs  += -I$(bmarkdir)/../env -I$(bmarkdir)/common $(addprefix -I$(bmarkdir)/, $(bmarks))
+incs  += -I$(bmarkdir)/riscv-test-env -I$(bmarkdir)/common $(addprefix -I$(bmarkdir)/, $(bmarks))
 objs  :=
 
 include $(patsubst %, $(bmarkdir)/%/bmark.mk, $(bmarks))
