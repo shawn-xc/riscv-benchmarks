@@ -11,6 +11,7 @@
 qsort_c_src = \
 	qsort_main.c \
 	syscalls.c \
+  devicetree.c \
 
 qsort_riscv_src = \
 	crt.S \

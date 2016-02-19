@@ -11,6 +11,7 @@
 towers_c_src = \
 	towers_main.c \
 	syscalls.c \
+  devicetree.c \
 
 towers_riscv_src = \
 	crt.S \

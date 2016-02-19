@@ -12,6 +12,7 @@ multiply_c_src = \
 	multiply_main.c \
 	multiply.c \
 	syscalls.c \
+  devicetree.c \
 
 multiply_riscv_src = \
 	crt.S \

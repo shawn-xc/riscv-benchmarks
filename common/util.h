@@ -37,6 +37,7 @@ extern void setStats(int enable);
 
 extern int have_vec;
 
+
 #define static_assert(cond) switch(0) { case 0: case !!(long)(cond): ; }
 
 static void printArray(const char name[], int n, const int arr[])
@@ -133,5 +134,10 @@ static uint64_t lfsr(uint64_t x)
       printf("\n%s: %ld cycles, %ld.%ld cycles/iter, %ld.%ld CPI\n", \
              stringify(code), _c, _c/iter, 10*_c/iter%10, _c/_i, 10*_c/_i%10); \
   } while(0)
+
+// Needed by devicetree.c
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+#define CLAMP(a, lo, hi) MIN(MAX(a, lo), hi)
 
 #endif //__UTIL_H

@@ -12,6 +12,7 @@ median_c_src = \
 	median_main.c \
 	median.c \
 	syscalls.c \
+  devicetree.c \
 
 median_riscv_src = \
 	crt.S \

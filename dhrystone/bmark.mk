@@ -12,6 +12,7 @@ dhrystone_c_src = \
 	dhrystone_main.c \
 	dhrystone.c \
 	syscalls.c \
+  devicetree.c \
 
 dhrystone_riscv_src = \
 	crt.S \

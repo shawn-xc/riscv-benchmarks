@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <limits.h>
 #include "util.h"
+#include "devicetree.h"
 
 #define SYS_write 64
 #define SYS_exit 93

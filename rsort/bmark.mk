@@ -11,6 +11,7 @@
 rsort_c_src = \
 	rsort.c \
 	syscalls.c \
+  devicetree.c \
 
 rsort_riscv_src = \
 	crt.S \

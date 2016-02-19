@@ -11,6 +11,7 @@
 spmv_c_src = \
 	spmv_main.c \
 	syscalls.c \
+  devicetree.c \
 
 spmv_riscv_src = \
 	crt.S \
