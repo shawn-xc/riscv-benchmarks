@@ -59,7 +59,7 @@ RISCV_SIM ?= spike --extension=hwacha
 VPATH += $(addprefix $(bmarkdir)/, $(bmarks))
 VPATH += $(bmarkdir)/common
 
-incs  += -I$(bmarkdir)/env -I$(bmarkdir)/common $(addprefix -I$(bmarkdir)/, $(bmarks))
+incs  += -I$(RISCV)/include/spike -I$(bmarkdir)/common $(addprefix -I$(bmarkdir)/, $(bmarks))
 objs  :=
 
 include $(patsubst %, $(bmarkdir)/%/bmark.mk, $(bmarks))
