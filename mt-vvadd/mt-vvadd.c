@@ -26,7 +26,7 @@
 //--------------------------------------------------------------------------
 // Input/Reference Data
 
-#include "dataset.h"
+#include "dataset2.h"
  
   
 //--------------------------------------------------------------------------
@@ -56,14 +56,14 @@ void thread_entry(int cid, int nc)
 
    // First do out-of-place vvadd
    barrier(nc);
-   stats(vvadd(cid, nc, DATA_SIZE, input1_data, input2_data, results_data); barrier(nc), DATA_SIZE);
+   stats(vvadd(cid, nc, DATA_SIZE, input_data_X, input_data_Y, results_data); barrier(nc), DATA_SIZE);
  
    if(cid == 0) {
 //#ifdef DEBUG
-     printDoubleArray("out-of-place results: ", DATA_SIZE, results_data);
-     printDoubleArray("out-of-place verify : ", DATA_SIZE, verify_data);
+     printFloatArray("out-of-place results: ", DATA_SIZE, results_data);
+     printFloatArray("out-of-place verify : ", DATA_SIZE, verify_data_Z);
 //#endif
-     int res = verifyDouble(DATA_SIZE, results_data, verify_data);
+     int res = verifyFloat(DATA_SIZE, results_data, verify_data_Z);
      if(res) exit(res);
    }
 
@@ -72,17 +72,17 @@ void thread_entry(int cid, int nc)
    size_t i;
    if(cid == 0) {
      for (i = 0; i < DATA_SIZE; i++)
-           results_data[i] = input1_data[i];
+           results_data[i] = input_data_X[i];
    }
    barrier(nc);
-   stats(vvadd(cid, nc, DATA_SIZE, results_data, input2_data, results_data); barrier(nc), DATA_SIZE);
+   stats(vvadd(cid, nc, DATA_SIZE, results_data, input_data_Y, results_data); barrier(nc), DATA_SIZE);
  
    if(cid == 0) {
 //#ifdef DEBUG
-     printDoubleArray("in-place results: ", DATA_SIZE, results_data);
-     printDoubleArray("in-place verify : ", DATA_SIZE, verify_data);
+     printFloatArray("in-place results: ", DATA_SIZE, results_data);
+     printFloatArray("in-place verify : ", DATA_SIZE, verify_data_Z);
 //#endif
-     int res = verifyDouble(DATA_SIZE, results_data, verify_data);
+     int res = verifyFloat(DATA_SIZE, results_data, verify_data_Z);
      if(res) exit(res);
    }
    
