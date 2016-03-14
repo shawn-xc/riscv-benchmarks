@@ -12,7 +12,8 @@ void __attribute__((noinline)) vvadd(int coreid, int ncores, size_t n, const dat
    size_t i;
    const size_t chunksize = n / ncores;
    const size_t base = coreid * chunksize;
-   const size_t end = MIN(base + chunksize, n);
+   const size_t chunk_end = MIN(base + chunksize, n);
+   const size_t end = (chunk_end + chunksize > n) ? n : chunk_end;
 
    for (i = base; i < end; i++)
    {
