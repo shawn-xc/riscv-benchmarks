@@ -6,19 +6,18 @@
 #include <stdio.h>
 #include "util.h"
 
+#define m 128
+#define n 128
+#define p 128
+
 void thread_entry(int cid, int nc)
 {
   const int R = 8;
-  int m, n, p;
   uint64_t s = 0xdeadbeefU;
-  
-  m = 128;
-  n = 128;
-  p = 128;
 
-  t a[m*p];
-  t b[p*n];
-  t c[m*n];
+  static t a[m*p];
+  static t b[p*n];
+  static t c[m*n];
 
   for (size_t i = 0; i < m; i++)
     for (size_t j = 0; j < p; j++)
