@@ -28,6 +28,7 @@ bmarks = \
 	spmv \
 	mt-matmul \
 	mt-mm \
+	mt-mask-sfilter 
  
 
 bmarks_host = \
