@@ -12,9 +12,9 @@ void thread_entry(int cid, int nc)
   int m, n, p;
   uint64_t s = 0xdeadbeefU;
   
-  m = CBM;
-  n = CBN;
-  p = CBK;
+  m = 128;
+  n = 128;
+  p = 128;
 
   t a[m*p];
   t b[p*n];

@@ -27,6 +27,19 @@ bmarks = \
 	dhrystone \
 	spmv \
 	mt-matmul \
+  vec-vvadd \
+  vec-dgemm-opt \
+  vec-hgemm-opt \
+  vec-hsaxpy \
+  vec-hsgemm-opt \
+  vec-saxpy-streamx \
+  vec-saxpy \
+  vec-sdaxpy \
+  vec-sdgemm-opt \
+  vec-sgemm-naive \
+  vec-sgemm-opt \
+  vec-stream \
+  
 
 bmarks_host = \
 	median \
@@ -36,9 +49,6 @@ bmarks_host = \
 	vvadd \
 	multiply \
 	spmv \
-	vec-vvadd \
-	vec-cmplxmult \
-	vec-matmul \
 
 #--------------------------------------------------------------------
 # Build rules
