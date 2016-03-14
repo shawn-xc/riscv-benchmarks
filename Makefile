@@ -27,19 +27,7 @@ bmarks = \
 	dhrystone \
 	spmv \
 	mt-matmul \
-  vec-vvadd \
-  vec-dgemm-opt \
-  vec-hgemm-opt \
-  vec-hsaxpy \
-  vec-hsgemm-opt \
-  vec-saxpy-streamx \
-  vec-saxpy \
-  vec-sdaxpy \
-  vec-sdgemm-opt \
-  vec-sgemm-naive \
-  vec-sgemm-opt \
-  vec-stream \
-  
+ 
 
 bmarks_host = \
 	median \
@@ -59,7 +47,7 @@ HOST_COMP = gcc $(HOST_OPTS)
 
 RISCV_PREFIX=riscv64-unknown-elf-
 RISCV_GCC = $(RISCV_PREFIX)gcc
-RISCV_GCC_OPTS = -static -std=gnu99 -O2 -ffast-math -fno-common -fno-builtin-printf
+RISCV_GCC_OPTS = -static -std=gnu99 -O2 -ffast-math -fno-common -fno-builtin-printf -march=RV64IMAFDXhwacha
 RISCV_LINK = $(RISCV_GCC) -T $(bmarkdir)/common/test.ld $(incs)
 RISCV_LINK_MT = $(RISCV_GCC) -T $(bmarkdir)/common/test-mt.ld
 RISCV_LINK_OPTS = -nostdlib -nostartfiles -ffast-math -lc -lgcc
