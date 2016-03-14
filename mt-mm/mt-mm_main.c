@@ -6,20 +6,22 @@
 #include <stdio.h>
 #include "util.h"
 
-#define m 128
-#define n 128
-#define p 128
+#define m 32
+#define n 32
+#define p 32
 
 void thread_entry(int cid, int nc)
 {
   const int R = 8;
   uint64_t s = 0xdeadbeefU;
   
-  static t a[m*p];
-  static t b[p*n];
-  static t c[m*n];
+  static t a[m*p*2];
+  static t b[p*n*2];
+  static t c[m*n*2];
 
-  printf("core id: %d (of %d)\n", cid, nc);
+  static __thread int i;
+
+  register uint64_t sp __asm__("sp");
 
   if (cid == 0) {
     for (size_t i = 0; i < m; i++)
@@ -37,8 +39,7 @@ void thread_entry(int cid, int nc)
     instret = -rdinstret();
     cycles = -rdcycle();
     barrier(nc);
-    if (cid == nc-1)
-      mm(m, n, p, a, p, b, n, c, n);
+    mm(m, n, p, a, p, b, n, c, n, cid, nc);
     barrier(nc);
     instret += rdinstret();
     cycles += rdcycle();
