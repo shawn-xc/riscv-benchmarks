@@ -29,7 +29,8 @@ bmarks = \
 	vec-dgemm-opt  \
 	vec-sdgemm-opt  \
 	vec-hsgemm-opt \
-	vec-saxpy-streamx
+	vec-saxpy-streamx \
+	vec-histo
 
 	#mm \
 	#vec-fft \
