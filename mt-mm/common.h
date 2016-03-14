@@ -3,6 +3,8 @@
 #ifndef _MM_H
 #define _MM_H
 
+#define _ISOC99_SOURCE
+
 #include <string.h>
 #include <stdint.h>
 #include <math.h>

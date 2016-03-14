@@ -8,25 +8,25 @@
 # the benchmark name as a prefix so that they are unique.
 #
 
-mm_c_src = \
-	mm_main.c \
-	mm.c \
+mt_mm_c_src = \
+	mt-mm_main.c \
+	mt-mm.c \
 	syscalls.c \
   devicetree.c \
 
-mm_riscv_src = \
+mt_mm_riscv_src = \
 	crt.S \
 
-mm_c_objs     = $(patsubst %.c, %.o, $(mm_c_src))
-mm_riscv_objs = $(patsubst %.S, %.o, $(mm_riscv_src))
+mt_mm_c_objs     = $(patsubst %.c, %.o, $(mt_mm_c_src))
+mt_mm_riscv_objs = $(patsubst %.S, %.o, $(mt_mm_riscv_src))
 
-mm_host_bin = mm.host
-$(mm_host_bin) : $(mm_c_src)
-	$(HOST_COMP) $^ -o $(mm_host_bin)
+mt_mm_host_bin = mt-mm.host
+$(mt_mm_host_bin) : $(mt_mm_c_src)
+	$(HOST_COMP) $^ -o $(mt_mm_host_bin)
 
-mm_riscv_bin = mm.riscv
-$(mm_riscv_bin) : $(mm_c_objs) $(mm_riscv_objs)
-	$(RISCV_LINK) $(mm_c_objs) $(mm_riscv_objs) -o $(mm_riscv_bin) $(RISCV_LINK_OPTS)
+mt_mm_riscv_bin = mt-mm.riscv
+$(mt_mm_riscv_bin) : $(mt_mm_c_objs) $(mt_mm_riscv_objs)
+	$(RISCV_LINK) $(mt_mm_c_objs) $(mt_mm_riscv_objs) -o $(mt_mm_riscv_bin) $(RISCV_LINK_OPTS)
 
-junk += $(mm_c_objs) $(mm_riscv_objs) \
-        $(mm_host_bin) $(mm_riscv_bin)
+junk += $(mt_mm_c_objs) $(mt_mm_riscv_objs) \
+        $(mt_mm_host_bin) $(mt_mm_riscv_bin)
