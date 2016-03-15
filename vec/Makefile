@@ -17,6 +17,7 @@ instbasedir = $(UCB_VLSI_HOME)/install
 
 bmarks = \
 	vec-saxpy \
+  vec-csaxpy \
 	vec-stream \
 	vec-daxpy \
 	vec-sdaxpy \
@@ -37,6 +38,7 @@ bmarks = \
 
 bmarks_host = \
 	vec-vvadd \
+  vec-csaxpy \
 	vec-cmplxmult \
 	vec-matmul \
 
