@@ -14,7 +14,7 @@
 # a2 has float* x
 # a3 has float* y
 vec_csaxpy_asm:
-    li t0, VCFG(0, 3, 0, 1)
+    li t0, VCFG(3, 0, 0, 1)
     vsetcfg t0
     fmv.x.s a1, fa1
     vmcs vs1, a1
