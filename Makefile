@@ -28,8 +28,9 @@ bmarks = \
 	spmv \
 	mt-matmul \
 	mt-mm \
-	mt-mask-sfilter 
- 
+	mt-mask-sfilter \
+	mt-csaxpy \
+	mt-histo \
 
 bmarks_host = \
 	median \
