@@ -3,6 +3,8 @@
 #ifndef _MM_H
 #define _MM_H
 
+#define _ISOC99_SOURCE
+
 #include <string.h>
 #include <stdint.h>
 #include <math.h>
@@ -25,7 +27,8 @@ extern "C" {
 #endif
 
 void mm(size_t m, size_t n, size_t p,
-        t* a, size_t lda, t* b, size_t ldb, t* c, size_t ldc);
+        t* a, size_t lda, t* b, size_t ldb, t* c, size_t ldc,
+	int cid, int nc);
 
 #ifdef __cplusplus
 }

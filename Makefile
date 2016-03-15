@@ -27,6 +27,8 @@ bmarks = \
 	dhrystone \
 	spmv \
 	mt-matmul \
+	mt-mm \
+	mt-mask-sfilter 
  
 
 bmarks_host = \
@@ -47,7 +49,7 @@ HOST_COMP = gcc $(HOST_OPTS)
 
 RISCV_PREFIX=riscv64-unknown-elf-
 RISCV_GCC = $(RISCV_PREFIX)gcc
-RISCV_GCC_OPTS = -static -std=gnu99 -O2 -ffast-math -fno-common -fno-builtin-printf -march=RV64IMAFDXhwacha
+RISCV_GCC_OPTS = -static -std=gnu99 -O2 -ffast-math -fno-common -fno-builtin-printf -march=RV64IMAFDXhwacha $(CFLAGS)
 RISCV_LINK = $(RISCV_GCC) -T $(bmarkdir)/common/test.ld $(incs)
 RISCV_LINK_MT = $(RISCV_GCC) -T $(bmarkdir)/common/test-mt.ld
 RISCV_LINK_OPTS = -nostdlib -nostartfiles -ffast-math -lc -lgcc
@@ -57,7 +59,7 @@ RISCV_SIM = spike
 VPATH += $(addprefix $(bmarkdir)/, $(bmarks))
 VPATH += $(bmarkdir)/common
 
-incs  += -I$(bmarkdir)/riscv-test-env -I$(bmarkdir)/common $(addprefix -I$(bmarkdir)/, $(bmarks))
+incs  += -I$(RISCV)/include/spike -I$(bmarkdir)/riscv-test-env -I$(bmarkdir)/common $(addprefix -I$(bmarkdir)/, $(bmarks))
 objs  :=
 
 include $(patsubst %, $(bmarkdir)/%/bmark.mk, $(bmarks))
