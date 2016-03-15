@@ -26,12 +26,10 @@ int thread_entry(int cid, int nc)
     printFloatArray("inputY", DATA_SIZE, input_data_Y);
     printFloatArray("verify", DATA_SIZE, verify_data);
   }
-
   barrier(nc);
 
   // Do SAXPY
   stats(mt_csaxpy(cid, nc, DATA_SIZE, input_data_a, input_data_X, input_data_Y, cond_data); barrier(nc), DATA_SIZE);
-
 
   if (cid == 0) {
     // Print out the result
@@ -41,6 +39,6 @@ int thread_entry(int cid, int nc)
     int res = verifyFloat(DATA_SIZE, input_data_Y, verify_data);
     if (res) exit(res);
   }
-  
+  barrier(nc);
   exit(0);
 }
