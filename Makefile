@@ -31,6 +31,21 @@ bmarks = \
 	mt-mask-sfilter \
 	mt-csaxpy \
 	mt-histo \
+	vec-saxpy \
+  vec-csaxpy \
+	vec-stream \
+	vec-daxpy \
+	vec-sdaxpy \
+	vec-hsaxpy \
+	vec-vvadd \
+	vec-sgemm-naive \
+	vec-sgemm-opt  \
+	vec-hgemm-opt  \
+	vec-dgemm-opt  \
+	vec-sdgemm-opt  \
+	vec-hsgemm-opt \
+	vec-saxpy-streamx \
+	vec-histo
 
 bmarks_host = \
 	median \
@@ -40,6 +55,10 @@ bmarks_host = \
 	vvadd \
 	multiply \
 	spmv \
+	vec-vvadd \
+  vec-csaxpy \
+	vec-cmplxmult \
+	vec-matmul \
 
 #--------------------------------------------------------------------
 # Build rules
