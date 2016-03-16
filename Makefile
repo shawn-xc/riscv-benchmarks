@@ -93,8 +93,12 @@ $(bmarks_riscv_out): %.riscv.out: %.riscv
 	$(RISCV_GCC) $(RISCV_GCC_OPTS) $(bmarks_defs) -D__ASSEMBLY__=1 \
 	             -c $(incs) $< -o $@
 
+ifdef HWACHA
 riscv: $(bmarks_riscv_dump) $(bmarks_riscv_hex)
 	make -C hwacha
+else
+riscv: $(bmarks_riscv_dump) $(bmarks_riscv_hex)
+endif
 
 run-riscv: $(bmarks_riscv_out)
 	echo; perl -ne 'print "  [$$1] $$ARGV \t$$2\n" if /\*{3}(.{8})\*{3}(.*)/' \
