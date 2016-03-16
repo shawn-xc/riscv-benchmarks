@@ -53,3 +53,7 @@ points to make about the toolchain.
  + To avoid having the compiler try and use a global pointer (ie using
    register 28 to point to a space where small global variables are
    stored) you need to use the -G 0 command line option.
+
+ + To compile the Hwacha benchmarks, set the $HWACHA environment variable
+   to point to the directory where you have installed the Hwacha fork
+   of the GCC toolchain (from ucb-bar/esp-tools).
