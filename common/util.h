@@ -6,6 +6,9 @@
 //--------------------------------------------------------------------------
 // Macros
 
+#define MAX(a, b) (((a) > (b)) ? (a) : (b))
+#define MIN(a, b) (((a) < (b)) ? (a) : (b))
+
 // Set HOST_DEBUG to 1 if you are going to compile this for a host
 // machine (ie Athena/Linux) for debug purposes and set HOST_DEBUG
 // to 0 if you are compiling with the smips-gcc toolchain.
@@ -37,7 +40,6 @@ extern void setStats(int enable);
 
 extern int have_vec;
 
-
 #define static_assert(cond) switch(0) { case 0: case !!(long)(cond): ; }
 
 static void printArray(const char name[], int n, const int arr[])
@@ -51,7 +53,7 @@ static void printArray(const char name[], int n, const int arr[])
 #endif
 }
 
-static void printDoubleArray(const char name[], int n, const double arr[])
+static void printFloatArray(const char name[], int n, const float arr[])
 {
 #if HOST_DEBUG
   int i;
@@ -62,7 +64,8 @@ static void printDoubleArray(const char name[], int n, const double arr[])
 #endif
 }
 
-static void printFloatArray(const char name[], int n, const float arr[])
+
+static void printDoubleArray(const char name[], int n, const double arr[])
 {
 #if HOST_DEBUG
   int i;
@@ -105,6 +108,23 @@ static int verifyDouble(int n, const volatile double* test, const double* verify
   return 0;
 }
 
+static int verifyuint16_t(int n, const volatile uint16_t* test, const uint16_t* verify)
+{
+  int i;
+  // Unrolled for faster verification
+  for (i = 0; i < n/2*2; i+=2)
+  {
+    uint16_t t0 = test[i], t1 = test[i+1];
+    uint16_t v0 = verify[i], v1 = verify[i+1];
+    int eq1 = t0 == v0, eq2 = t1 == v1;
+    if (!(eq1 & eq2)) return i+1+eq1;
+  }
+  if (n % 2 != 0 && test[n-1] != verify[n-1])
+    return n;
+  return 0;
+}
+
+
 static int verifyFloat(int n, const volatile float* test, const float* verify)
 {
   int i;
@@ -120,6 +140,7 @@ static int verifyFloat(int n, const volatile float* test, const float* verify)
     return n;
   return 0;
 }
+
 
 static void __attribute__((noinline)) barrier(int ncores)
 {
@@ -161,10 +182,5 @@ static uint64_t lfsr(uint64_t x)
       printf("\n%s: %ld cycles, %ld.%ld cycles/iter, %ld.%ld CPI\n", \
              stringify(code), _c, _c/iter, 10*_c/iter%10, _c/_i, 10*_c/_i%10); \
   } while(0)
-
-// Needed by devicetree.c
-#define MAX(a, b) ((a) > (b) ? (a) : (b))
-#define MIN(a, b) ((a) < (b) ? (a) : (b))
-#define CLAMP(a, lo, hi) MIN(MAX(a, lo), hi)
 
 #endif //__UTIL_H
