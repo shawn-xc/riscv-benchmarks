@@ -8,38 +8,40 @@ default: all
 
 bmarkdir = .
 
-instname = riscv-bmarks
+instname = riscv-vec-bmarks
 instbasedir = $(UCB_VLSI_HOME)/install
+
+check-hwacha:
+ifndef HWACHA
+	$(error HWACHA must be set to point to Hwacha toolchain)
+endif
 
 #--------------------------------------------------------------------
 # Sources
 #--------------------------------------------------------------------
 
 bmarks = \
-	median \
-	mt-vvadd \
-	qsort \
-	rsort \
-	towers \
-	vvadd \
-	multiply \
-	mm \
-	dhrystone \
-	spmv \
-	mt-matmul \
-	mt-mm \
-	mt-mask-sfilter \
-	mt-csaxpy \
-	mt-histo \
+	vec-saxpy \
+  vec-csaxpy \
+	vec-stream \
+	vec-daxpy \
+	vec-sdaxpy \
+	vec-hsaxpy \
+	vec-vvadd \
+	vec-sgemm-naive \
+	vec-sgemm-opt  \
+	vec-hgemm-opt  \
+	vec-dgemm-opt  \
+	vec-sdgemm-opt  \
+	vec-hsgemm-opt \
+	vec-saxpy-streamx \
+	vec-histo \
 
 bmarks_host = \
-	median \
-	mt-vvadd \
-	qsort \
-	towers \
-	vvadd \
-	multiply \
-	spmv \
+	vec-vvadd \
+  vec-csaxpy \
+	vec-cmplxmult \
+	vec-matmul \
 
 #--------------------------------------------------------------------
 # Build rules
@@ -48,19 +50,19 @@ bmarks_host = \
 HOST_OPTS = -std=gnu99 -DPREALLOCATE=0 -DHOST_DEBUG=1
 HOST_COMP = gcc $(HOST_OPTS)
 
-RISCV_PREFIX=riscv64-unknown-elf-
+RISCV_PREFIX=$(HWACHA)/bin/riscv64-unknown-elf-
 RISCV_GCC = $(RISCV_PREFIX)gcc
 RISCV_GCC_OPTS = -static -std=gnu99 -O2 -ffast-math -fno-common -fno-builtin-printf -march=RV64IMAFDXhwacha $(CFLAGS)
-RISCV_LINK = $(RISCV_GCC) -T $(bmarkdir)/common/test.ld $(incs)
-RISCV_LINK_MT = $(RISCV_GCC) -T $(bmarkdir)/common/test-mt.ld
+RISCV_LINK = $(RISCV_GCC) -T $(bmarkdir)/../common/test.ld $(incs)
+RISCV_LINK_MT = $(RISCV_GCC) -T $(bmarkdir)/../common/test-mt.ld
 RISCV_LINK_OPTS = -nostdlib -nostartfiles -ffast-math -lc -lgcc
 RISCV_OBJDUMP = $(RISCV_PREFIX)objdump --disassemble-all --disassemble-zeroes --section=.text --section=.text.startup --section=.data
 RISCV_SIM = spike
 
 VPATH += $(addprefix $(bmarkdir)/, $(bmarks))
-VPATH += $(bmarkdir)/common
+VPATH += $(bmarkdir)/../common
 
-incs  += -I$(RISCV)/include/spike -I$(bmarkdir)/riscv-test-env -I$(bmarkdir)/common $(addprefix -I$(bmarkdir)/, $(bmarks))
+incs  += -I$(RISCV)/include/spike -I$(bmarkdir)/../riscv-test-env -I$(bmarkdir)/../common $(addprefix -I$(bmarkdir)/, $(bmarks))
 objs  :=
 
 include $(patsubst %, $(bmarkdir)/%/bmark.mk, $(bmarks))
@@ -93,7 +95,7 @@ $(bmarks_riscv_out): %.riscv.out: %.riscv
 	$(RISCV_GCC) $(RISCV_GCC_OPTS) $(bmarks_defs) -D__ASSEMBLY__=1 \
 	             -c $(incs) $< -o $@
 
-riscv: $(bmarks_riscv_dump) $(bmarks_riscv_hex)
+riscv: check-hwacha $(bmarks_riscv_dump) $(bmarks_riscv_hex)
 run-riscv: $(bmarks_riscv_out)
 	echo; perl -ne 'print "  [$$1] $$ARGV \t$$2\n" if /\*{3}(.{8})\*{3}(.*)/' \
 	       $(bmarks_riscv_out); echo;
