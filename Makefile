@@ -94,6 +94,8 @@ $(bmarks_riscv_out): %.riscv.out: %.riscv
 	             -c $(incs) $< -o $@
 
 riscv: $(bmarks_riscv_dump) $(bmarks_riscv_hex)
+	make -C hwacha
+
 run-riscv: $(bmarks_riscv_out)
 	echo; perl -ne 'print "  [$$1] $$ARGV \t$$2\n" if /\*{3}(.{8})\*{3}(.*)/' \
 	       $(bmarks_riscv_out); echo;
@@ -115,6 +117,7 @@ run-host: $(bmarks_host_out)
 	       $(bmarks_host_out); echo;
 
 junk += $(bmarks_host_bin) $(bmarks_host_out)
+
 
 #------------------------------------------------------------
 # Default
@@ -141,3 +144,4 @@ install-link:
 
 clean:
 	rm -rf $(objs) $(junk)
+	make -C hwacha/ clean
