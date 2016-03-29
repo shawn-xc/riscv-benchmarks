@@ -12,7 +12,6 @@ vec-hsgemm-opt_c_src = \
 	vec-hsgemm-opt_main.c \
 	vec-hsgemm-opt.c \
 	syscalls.c \
-  devicetree.c \
 
 vec-hsgemm-opt_riscv_src = \
 	crt.S \

@@ -12,7 +12,6 @@ vec_histo_c_src = \
 	vec_histo_main.c \
 	vec_histo.c \
 	syscalls.c \
-  devicetree.c \
 
 vec_histo_riscv_src = \
 	crt.S \

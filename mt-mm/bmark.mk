@@ -12,7 +12,6 @@ mt_mm_c_src = \
 	mt-mm_main.c \
 	mt-mm.c \
 	syscalls.c \
-  devicetree.c \
 
 mt_mm_riscv_src = \
 	crt.S \

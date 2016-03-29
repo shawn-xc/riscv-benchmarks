@@ -12,7 +12,6 @@ vec_stream_c_src = \
 	vec_stream_main.c \
 	vec_stream.c \
 	syscalls.c \
-  devicetree.c \
 
 vec_stream_riscv_src = \
 	crt.S \

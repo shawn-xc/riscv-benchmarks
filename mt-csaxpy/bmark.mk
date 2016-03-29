@@ -12,7 +12,6 @@ mt_csaxpy_c_src = \
 	mt-csaxpy_main.c \
 	mt-csaxpy.c \
 	syscalls.c \
-	devicetree.c \
 
 mt_csaxpy_riscv_src = \
 	crt.S \

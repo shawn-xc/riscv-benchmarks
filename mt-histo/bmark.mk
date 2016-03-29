@@ -11,7 +11,6 @@
 mt_histo_c_src = \
 	mt_histo.c \
 	syscalls.c \
-	devicetree.c \
 
 mt_histo_riscv_src = \
 	crt.S \

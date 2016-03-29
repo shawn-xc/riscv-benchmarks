@@ -12,7 +12,6 @@ vec_vvadd_c_src = \
 	vec_vvadd_main.c \
 	vec_vvadd.c \
 	syscalls.c \
-  devicetree.c \
 
 vec_vvadd_riscv_src = \
 	crt.S \

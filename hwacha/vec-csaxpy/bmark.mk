@@ -12,7 +12,6 @@ vec_csaxpy_c_src = \
 	vec_csaxpy_main.c \
 	vec_csaxpy.c \
 	syscalls.c \
-  devicetree.c \
 
 vec_csaxpy_riscv_src = \
 	crt.S \

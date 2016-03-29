@@ -12,7 +12,6 @@ vec_saxpy_streamx_c_src = \
 	vec_saxpy_streamx_main.c \
 	vec_saxpy_streamx.c \
 	syscalls.c \
-  devicetree.c \
 
 vec_saxpy_streamx_riscv_src = \
 	crt.S \

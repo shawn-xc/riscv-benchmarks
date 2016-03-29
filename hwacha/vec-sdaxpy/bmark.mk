@@ -12,7 +12,6 @@ vec_sdaxpy_c_src = \
 	vec_sdaxpy_main.c \
 	vec_sdaxpy.c \
 	syscalls.c \
-  devicetree.c \
 
 vec_sdaxpy_riscv_src = \
 	crt.S \

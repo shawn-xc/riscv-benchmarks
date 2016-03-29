@@ -132,20 +132,20 @@ _start:
   la  tp, _end + 63
   and tp, tp, -64
 
+  # get core id
+  csrr a0, mhartid
+  # for now, assume only 1 core
+  li a1, 1
+1:bgeu a0, a1, 1b
 
   # give each core 128KB of stack + TLS
 #define STKSHIFT 17
-  csrr a0, mhartid
   sll a2, a0, STKSHIFT
   add tp, tp, a2
   add sp, a0, 1
   sll sp, sp, STKSHIFT
   add sp, sp, tp
 
-  jal parse_device_tree
-
-  csrr a0, mhartid
-  lw a1, num_harts
   la t0, _init
   csrw mepc, t0
   eret

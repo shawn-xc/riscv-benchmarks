@@ -12,7 +12,6 @@ mt_mask_sfilter_c_src = \
 	mt-mask-sfilter.c \
 	mask-sfilter.c \
 	syscalls.c \
-  devicetree.c
 
 mt_mask_sfilter_riscv_src = \
 	crt.S \

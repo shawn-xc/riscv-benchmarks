@@ -12,7 +12,6 @@ mt_matmul_c_src = \
 	mt-matmul.c \
 	matmul.c \
 	syscalls.c \
-  devicetree.c \
 
 mt_matmul_riscv_src = \
 	crt.S \

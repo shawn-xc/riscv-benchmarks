@@ -12,7 +12,6 @@ vec-sdgemm-opt_c_src = \
 	vec-sdgemm-opt_main.c \
 	vec-sdgemm-opt.c \
 	syscalls.c \
-  devicetree.c \
 
 vec-sdgemm-opt_riscv_src = \
 	crt.S \

@@ -53,6 +53,17 @@ static void printArray(const char name[], int n, const int arr[])
 #endif
 }
 
+static void printDoubleArray(const char name[], int n, const double arr[])
+{
+#if HOST_DEBUG
+  int i;
+  printf( " %10s :", name );
+  for ( i = 0; i < n; i++ )
+    printf( " %g ", arr[i] );
+  printf( "\n" );
+#endif
+}
+
 static void printFloatArray(const char name[], int n, const float arr[])
 {
 #if HOST_DEBUG
@@ -64,17 +75,6 @@ static void printFloatArray(const char name[], int n, const float arr[])
 #endif
 }
 
-
-static void printDoubleArray(const char name[], int n, const double arr[])
-{
-#if HOST_DEBUG
-  int i;
-  printf( " %10s :", name );
-  for ( i = 0; i < n; i++ )
-    printf( " %g ", arr[i] );
-  printf( "\n" );
-#endif
-}
 
 static int verify(int n, const volatile int* test, const int* verify)
 {

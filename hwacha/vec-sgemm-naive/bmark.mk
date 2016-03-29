@@ -12,7 +12,6 @@ vec-sgemm-naive_c_src = \
 	vec-sgemm-naive_main.c \
 	vec-sgemm-naive.c \
 	syscalls.c \
-  devicetree.c \
 
 vec-sgemm-naive_riscv_src = \
 	crt.S \
