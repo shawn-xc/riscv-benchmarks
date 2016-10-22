@@ -11,10 +11,10 @@
 #define SYS_exit 93
 #define SYS_stats 1234
 
-// initialized in crt.S
-int have_vec;
+extern volatile uint64_t tohost;
+extern volatile uint64_t fromhost;
 
-static long handle_frontend_syscall(long which, long arg0, long arg1, long arg2)
+static uintptr_t handle_frontend_syscall(uintptr_t which, uint64_t arg0, uint64_t arg1, uint64_t arg2)
 {
   volatile uint64_t magic_mem[8] __attribute__((aligned(64)));
   magic_mem[0] = which;
@@ -22,78 +22,63 @@ static long handle_frontend_syscall(long which, long arg0, long arg1, long arg2)
   magic_mem[2] = arg1;
   magic_mem[3] = arg2;
   __sync_synchronize();
-  write_csr(mtohost, (long)magic_mem);
-  while (swap_csr(mfromhost, 0) == 0);
+
+  tohost = (uintptr_t)magic_mem;
+  while (fromhost == 0)
+    ;
+  fromhost = 0;
+
+  __sync_synchronize();
   return magic_mem[0];
 }
 
-// In setStats, we might trap reading uarch-specific counters.
-// The trap handler will skip over the instruction and write 0,
-// but only if a0 is the destination register.
-#define read_csr_safe(reg) ({ register long __tmp asm("a0"); \
-  asm volatile ("csrr %0, " #reg : "=r"(__tmp)); \
-  __tmp; })
-
-#define NUM_COUNTERS 18
-static long counters[NUM_COUNTERS];
+#define NUM_COUNTERS 2
+static uintptr_t counters[NUM_COUNTERS];
 static char* counter_names[NUM_COUNTERS];
+
 static int handle_stats(int enable)
 {
-  //use csrs to set stats register
-  if (enable)
-    asm volatile ("csrrs a0, stats, 1" ::: "a0");
   int i = 0;
 #define READ_CTR(name) do { \
     while (i >= NUM_COUNTERS) ; \
-    long csr = read_csr_safe(name); \
+    uintptr_t csr = read_csr(name); \
     if (!enable) { csr -= counters[i]; counter_names[i] = #name; } \
     counters[i++] = csr; \
   } while (0)
-  READ_CTR(cycle);   READ_CTR(instret);
-  READ_CTR(uarch0);  READ_CTR(uarch1);  READ_CTR(uarch2);  READ_CTR(uarch3);
-  READ_CTR(uarch4);  READ_CTR(uarch5);  READ_CTR(uarch6);  READ_CTR(uarch7);
-  READ_CTR(uarch8);  READ_CTR(uarch9);  READ_CTR(uarch10); READ_CTR(uarch11);
-  READ_CTR(uarch12); READ_CTR(uarch13); READ_CTR(uarch14); READ_CTR(uarch15);
+
+  READ_CTR(mcycle);
+  READ_CTR(minstret);
+
 #undef READ_CTR
-  if (!enable)
-    asm volatile ("csrrc a0, stats, 1" ::: "a0");
   return 0;
 }
 
-void tohost_exit(long code)
+void __attribute__((noreturn)) tohost_exit(uintptr_t code)
 {
-  write_csr(mtohost, (code << 1) | 1);
+  tohost = (code << 1) | 1;
   while (1);
 }
 
-long handle_trap(long cause, long epc, long regs[32])
+uintptr_t handle_trap(uintptr_t cause, uintptr_t epc, uintptr_t regs[32])
 {
-  int* csr_insn;
-  asm ("jal %0, 1f; csrr a0, stats; 1:" : "=r"(csr_insn));
-  long sys_ret = 0;
-
-  if (cause == CAUSE_ILLEGAL_INSTRUCTION &&
-      (*(int*)epc & *csr_insn) == *csr_insn)
-    ;
-  else if (cause != CAUSE_USER_ECALL)
+  if (cause != CAUSE_MACHINE_ECALL)
     tohost_exit(1337);
   else if (regs[17] == SYS_exit)
     tohost_exit(regs[10]);
   else if (regs[17] == SYS_stats)
-    sys_ret = handle_stats(regs[10]);
+    regs[10] = handle_stats(regs[10]);
   else
-    sys_ret = handle_frontend_syscall(regs[17], regs[10], regs[11], regs[12]);
+    regs[10] = handle_frontend_syscall(regs[17], regs[10], regs[11], regs[12]);
 
-  regs[10] = sys_ret;
-  return epc+4;
+  return epc + ((*(unsigned short*)epc & 3) == 3 ? 4 : 2);
 }
 
-static long syscall(long num, long arg0, long arg1, long arg2)
+static uintptr_t syscall(uintptr_t num, uintptr_t arg0, uintptr_t arg1, uintptr_t arg2)
 {
-  register long a7 asm("a7") = num;
-  register long a0 asm("a0") = arg0;
-  register long a1 asm("a1") = arg1;
-  register long a2 asm("a2") = arg2;
+  register uintptr_t a7 asm("a7") = num;
+  register uintptr_t a0 asm("a0") = arg0;
+  register uintptr_t a1 asm("a1") = arg1;
+  register uintptr_t a2 asm("a2") = arg2;
   asm volatile ("scall" : "+r"(a0) : "r"(a1), "r"(a2), "r"(a7));
   return a0;
 }
@@ -111,7 +96,7 @@ void setStats(int enable)
 
 void printstr(const char* s)
 {
-  syscall(SYS_write, 1, (long)s, strlen(s));
+  syscall(SYS_write, 1, (uintptr_t)s, strlen(s));
 }
 
 void __attribute__((weak)) thread_entry(int cid, int nc)
@@ -168,7 +153,7 @@ int putchar(int ch)
 
   if (ch == '\n' || buflen == sizeof(buf))
   {
-    syscall(SYS_write, 1, (long)buf, buflen);
+    syscall(SYS_write, 1, (uintptr_t)buf, buflen);
     buflen = 0;
   }
 
@@ -410,4 +395,96 @@ int sprintf(char* str, const char* fmt, ...)
 
   va_end(ap);
   return str - str0;
+}
+
+void* memcpy(void* dest, const void* src, size_t len)
+{
+  if ((((uintptr_t)dest | (uintptr_t)src | len) & (sizeof(uintptr_t)-1)) == 0) {
+    const uintptr_t* s = src;
+    uintptr_t *d = dest;
+    while (d < (uintptr_t*)(dest + len))
+      *d++ = *s++;
+  } else {
+    const char* s = src;
+    char *d = dest;
+    while (d < (char*)(dest + len))
+      *d++ = *s++;
+  }
+  return dest;
+}
+
+void* memset(void* dest, int byte, size_t len)
+{
+  if ((((uintptr_t)dest | len) & (sizeof(uintptr_t)-1)) == 0) {
+    uintptr_t word = byte & 0xFF;
+    word |= word << 8;
+    word |= word << 16;
+    word |= word << 16 << 16;
+
+    uintptr_t *d = dest;
+    while (d < (uintptr_t*)(dest + len))
+      *d++ = word;
+  } else {
+    char *d = dest;
+    while (d < (char*)(dest + len))
+      *d++ = byte;
+  }
+  return dest;
+}
+
+size_t strlen(const char *s)
+{
+  const char *p = s;
+  while (*p)
+    p++;
+  return p - s;
+}
+
+size_t strnlen(const char *s, size_t n)
+{
+  const char *p = s;
+  while (n-- && *p)
+    p++;
+  return p - s;
+}
+
+int strcmp(const char* s1, const char* s2)
+{
+  unsigned char c1, c2;
+
+  do {
+    c1 = *s1++;
+    c2 = *s2++;
+  } while (c1 != 0 && c1 == c2);
+
+  return c1 - c2;
+}
+
+char* strcpy(char* dest, const char* src)
+{
+  char* d = dest;
+  while ((*d++ = *src++))
+    ;
+  return dest;
+}
+
+long atol(const char* str)
+{
+  long res = 0;
+  int sign = 0;
+
+  while (*str == ' ')
+    str++;
+
+  if (*str == '-' || *str == '+') {
+    sign = *str == '-';
+    str++;
+  }
+
+  while (*str) {
+    res *= 10;
+    res += *str++ - '0';
+  }
+
+  return sign ? -res : res;
 }
