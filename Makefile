@@ -4,9 +4,11 @@
 # Yunsup Lee (yunsup@cs.berkeley.edu)
 #
 
+XLEN ?= 64
+
 default: all
 
-bmarkdir = .
+src_dir = .
 
 instname = riscv-bmarks
 instbasedir = $(UCB_VLSI_HOME)/install
@@ -17,7 +19,6 @@ instbasedir = $(UCB_VLSI_HOME)/install
 
 bmarks = \
 	median \
-	mt-vvadd \
 	qsort \
 	rsort \
 	towers \
@@ -26,6 +27,7 @@ bmarks = \
 	mm \
 	dhrystone \
 	spmv \
+	mt-vvadd \
 	mt-matmul \
 	mt-mm \
 	mt-mask-sfilter \
@@ -40,6 +42,9 @@ bmarks_host = \
 	vvadd \
 	multiply \
 	spmv \
+	vec-vvadd \
+	vec-cmplxmult \
+	vec-matmul \
 
 #--------------------------------------------------------------------
 # Build rules
@@ -48,37 +53,33 @@ bmarks_host = \
 HOST_OPTS = -std=gnu99 -DPREALLOCATE=0 -DHOST_DEBUG=1
 HOST_COMP = gcc $(HOST_OPTS)
 
-RISCV_PREFIX=riscv64-unknown-elf-
-RISCV_GCC = $(RISCV_PREFIX)gcc
-RISCV_GCC_OPTS = -mcmodel=medany -static -std=gnu99 -O2 -ffast-math -fno-common -fno-builtin-printf -march=RV64IMAFDXhwacha $(CFLAGS) -fPIC 
-RISCV_LINK = $(RISCV_GCC) -T $(bmarkdir)/common/test.ld $(incs)
-RISCV_LINK_MT = $(RISCV_GCC) -T $(bmarkdir)/common/test-mt.ld 
-RISCV_LINK_OPTS = -nostdlib -nostartfiles -ffast-math -lgcc -ldl -Wl,-v
-RISCV_OBJDUMP = $(RISCV_PREFIX)objdump --disassemble-all --disassemble-zeroes --section=.text --section=.text.startup --section=.data
-RISCV_SIM = spike
+RISCV_PREFIX ?= riscv$(XLEN)-unknown-elf-
+RISCV_GCC ?= $(RISCV_PREFIX)gcc
+RISCV_GCC_OPTS ?= -mcmodel=medany -static -std=gnu99 -O2 -ffast-math -fno-common -fno-builtin-printf  -march=RV64IMAFDXhwacha
+RISCV_LINK ?= $(RISCV_GCC) -T $(src_dir)/common/test.ld $(incs)
+RISCV_LINK_MT ?= $(RISCV_GCC) -T $(src_dir)/common/test-mt.ld
+RISCV_LINK_OPTS ?= -nostdlib -nostartfiles -ffast-math -lgcc -Wl,-v
+RISCV_OBJDUMP ?= $(RISCV_PREFIX)objdump --disassemble-all --disassemble-zeroes --section=.text --section=.text.startup --section=.data
+RISCV_SIM ?= spike
 
-VPATH += $(addprefix $(bmarkdir)/, $(bmarks))
-VPATH += $(bmarkdir)/common
+VPATH += $(addprefix $(src_dir)/, $(bmarks))
+VPATH += $(src_dir)/common
 
-incs  += -I./env -I$(bmarkdir)/common $(addprefix -I$(bmarkdir)/, $(bmarks))
-#-I$(RISCV)/include/spike -I$(bmarkdir)/riscv-pk/machine 
+#incs  += -I$(src_dir)/./riscv-test-env -I$(src_dir)/common $(addprefix -I$(src_dir)/, $(bmarks))
+incs  +=  -I./riscv-test-env -I$(src_dir)/common $(addprefix -I$(src_dir)/, $(bmarks))
 objs  :=
 
-include $(patsubst %, $(bmarkdir)/%/bmark.mk, $(bmarks))
+include $(patsubst %, $(src_dir)/%/bmark.mk, $(bmarks))
 
 #------------------------------------------------------------
 # Build and run benchmarks on riscv simulator
 
 bmarks_riscv_bin  = $(addsuffix .riscv,  $(bmarks))
 bmarks_riscv_dump = $(addsuffix .riscv.dump, $(bmarks))
-bmarks_riscv_hex = $(addsuffix .riscv.hex, $(bmarks))
 bmarks_riscv_out  = $(addsuffix .riscv.out,  $(bmarks))
 
 bmarks_defs   = -DPREALLOCATE=1 -DHOST_DEBUG=0
 bmarks_cycles = 80000
-
-%.hex: %
-	elf2hex 16 1048576 $< > $@
 
 $(bmarks_riscv_dump): %.riscv.dump: %.riscv
 	$(RISCV_OBJDUMP) $< > $@
@@ -123,7 +124,6 @@ run-host: $(bmarks_host_out)
 
 junk += $(bmarks_host_bin) $(bmarks_host_out)
 
-
 #------------------------------------------------------------
 # Default
 
@@ -149,4 +149,3 @@ install-link:
 
 clean:
 	rm -rf $(objs) $(junk)
-	make -C hwacha/ clean
