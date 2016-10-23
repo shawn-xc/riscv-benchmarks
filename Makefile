@@ -65,8 +65,7 @@ RISCV_SIM ?= spike
 VPATH += $(addprefix $(src_dir)/, $(bmarks))
 VPATH += $(src_dir)/common
 
-#incs  += -I$(src_dir)/./riscv-test-env -I$(src_dir)/common $(addprefix -I$(src_dir)/, $(bmarks))
-incs  +=  -I./riscv-test-env -I$(src_dir)/common $(addprefix -I$(src_dir)/, $(bmarks))
+incs  +=  -I$(src_dir)/riscv-test-env -I$(src_dir)/libamf/src -I$(src_dir)/common $(addprefix -I$(src_dir)/, $(bmarks))
 objs  :=
 
 include $(patsubst %, $(src_dir)/%/bmark.mk, $(bmarks))

@@ -4,3 +4,6 @@
 [submodule "riscv-test-env"]
 	path = riscv-test-env
 	url = git@github.com:riscv/riscv-test-env.git
+[submodule "libamf"]
+	path = libamf
+	url = git@github.com:ericlove/libamf.git

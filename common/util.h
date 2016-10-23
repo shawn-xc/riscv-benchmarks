@@ -37,6 +37,7 @@ extern void setStats(int enable);
 #endif
 
 #include <stdint.h>
+#include "amf.h"
 
 extern int have_vec;
 
