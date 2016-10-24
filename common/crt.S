@@ -13,25 +13,11 @@
 #endif
 
   .text
-  .align 6
-user_trap_entry:
-  j trap_entry
-
-  .align 6
-supervisor_trap_entry:
-  j supervisor_trap_entry
-
-  .align 6
-hypervisor_trap_entry:
-  j hypervisor_trap_entry
-
-  .align 6
-machine_trap_entry:
-  j trap_entry
-
-  .align 6
   .globl _start
 _start:
+  la t0, trap_entry
+  csrw mtvec, t0
+
   li  x1, 0
   li  x2, 0
   li  x3, 0
@@ -64,31 +50,26 @@ _start:
   li  x30,0
   li  x31,0
 
-  li t0, MSTATUS_PRV1; csrc mstatus, t0    # run tests in user mode
-  li t0, MSTATUS_IE1;  csrs mstatus, t0    # enable interrupts in user mode
-  li t0, MSTATUS_FS;   csrs mstatus, t0    # enable FPU
-  li t0, MSTATUS_XS;   csrs mstatus, t0    # enable accelerator
+  # enable FPU and accelerator if present
+  li t0, MSTATUS_FS | MSTATUS_XS
+  csrs mstatus, t0
 
+  # make sure XLEN agrees with compilation choice
+  csrr t0, misa
 #ifdef __riscv64
-  csrr t0, mcpuid
-  # make sure processor supports RV64 if this was compiled for RV64
   bltz t0, 1f
+#else
+  bgez t0, 1f
+#endif
   li a0, 1234
   j tohost_exit
 1:
-#endif
-
-  csrr t0, mstatus
-  li t1, MSTATUS_XS
-  and t1, t0, t1
-  sw t1, have_vec, t2
-
-  ## if that didn't stick, we don't have a FPU, so don't initialize it
-  li t1, MSTATUS_FS
-  and t1, t0, t1
-  beqz t1, 1f
 
 #ifdef __riscv_hard_float
+  # initialize FPU if we have one
+  andi t0, t0, 1 << ('f' - 'a')
+  beqz t0, 1f
+
   fssr    x0
   fmv.s.x f0, x0
   fmv.s.x f1, x0
@@ -134,9 +115,7 @@ _start:
 
   # get core id
   csrr a0, mhartid
-  # for now, assume only 1 core
-  li a1, 1
-1:bgeu a0, a1, 1b
+
 
   # give each core 128KB of stack + TLS
 #define STKSHIFT 17
@@ -146,10 +125,16 @@ _start:
   sll sp, sp, STKSHIFT
   add sp, sp, tp
 
-  la t0, _init
-  csrw mepc, t0
-  eret
+  # get num cores
+  jal get_nharts
+  mv a1, a0
 
+  # get core id
+  csrr a0, mhartid
+
+  j _init
+
+  .align 2
 trap_entry:
   addi sp, sp, -272
 
@@ -191,6 +176,10 @@ trap_entry:
   jal handle_trap
   csrw mepc, a0
 
+  # Remain in M-mode after eret
+  li t0, MSTATUS_MPP
+  csrs mstatus, t0
+
   LREG x1, 1*REGBYTES(sp)
   LREG x2, 2*REGBYTES(sp)
   LREG x3, 3*REGBYTES(sp)
@@ -224,7 +213,7 @@ trap_entry:
   LREG x31, 31*REGBYTES(sp)
 
   addi sp, sp, 272
-  eret
+  mret
 
 .section ".tdata.begin"
 .globl _tdata_begin
@@ -237,3 +226,11 @@ _tdata_end:
 .section ".tbss.end"
 .globl _tbss_end
 _tbss_end:
+
+.section ".tohost","aw",@progbits
+.align 6
+.globl tohost
+tohost: .dword 0
+.align 6
+.globl fromhost
+fromhost: .dword 0
