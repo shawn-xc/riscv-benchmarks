@@ -488,3 +488,11 @@ long atol(const char* str)
 
   return sign ? -res : res;
 }
+
+int get_nharts()
+{
+  const char* config_string = *((const char**) CONFIG_STRING_ADDR);
+
+  return amf_ntiles(config_string);
+}
+
