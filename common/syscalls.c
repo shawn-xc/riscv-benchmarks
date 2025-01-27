@@ -8,12 +8,13 @@
 #include "util.h"
 
 #define SYS_write 64
-#define SYS_exit 93
-#define SYS_stats 1234
+#define SYS_exit 93    // no need
+#define SYS_stats 1234  // no need 
 
 extern volatile uint64_t tohost;
 extern volatile uint64_t fromhost;
 
+// change name to syscall
 static uintptr_t handle_frontend_syscall(uintptr_t which, uint64_t arg0, uint64_t arg1, uint64_t arg2)
 {
   volatile uint64_t magic_mem[8] __attribute__((aligned(64)));
@@ -36,6 +37,7 @@ static uintptr_t handle_frontend_syscall(uintptr_t which, uint64_t arg0, uint64_
 static uintptr_t counters[NUM_COUNTERS];
 static char* counter_names[NUM_COUNTERS];
 
+// no need
 static int handle_stats(int enable)
 {
   int i = 0;
@@ -59,10 +61,11 @@ void __attribute__((noreturn)) tohost_exit(uintptr_t code)
   while (1);
 }
 
+// uintptr_t __attribute__((weak)) handle_trap(...
 uintptr_t handle_trap(uintptr_t cause, uintptr_t epc, uintptr_t regs[32])
 {
   if (cause != CAUSE_MACHINE_ECALL)
-    tohost_exit(1337);
+    tohost_exit(1337);  // only this one
   else if (regs[17] == SYS_exit)
     tohost_exit(regs[10]);
   else if (regs[17] == SYS_stats)
@@ -73,6 +76,7 @@ uintptr_t handle_trap(uintptr_t cause, uintptr_t epc, uintptr_t regs[32])
   return epc + ((*(unsigned short*)epc & 3) == 3 ? 4 : 2);
 }
 
+// no need 
 static uintptr_t syscall(uintptr_t num, uintptr_t arg0, uintptr_t arg1, uintptr_t arg2)
 {
   register uintptr_t a7 asm("a7") = num;
@@ -85,10 +89,12 @@ static uintptr_t syscall(uintptr_t num, uintptr_t arg0, uintptr_t arg1, uintptr_
 
 void exit(int code)
 {
+  // all no need, changed to tohost_exit(code);
   syscall(SYS_exit, code, 0, 0);
   while (1);
 }
 
+// no need
 void setStats(int enable)
 {
   syscall(SYS_stats, enable, 0, 0);
@@ -103,13 +109,13 @@ void __attribute__((weak)) thread_entry(int cid, int nc)
 {
   // multi-threaded programs override this function.
   // for the case of single-threaded programs, only let core 0 proceed.
-  while (cid != 0);
+  while (cid != 0); // no need
 }
 
 int __attribute__((weak)) main(int argc, char** argv)
 {
   // single-threaded programs override this function.
-  printstr("Implement main(), foo!\n");
+  printstr("Implement main(), foo!\n");  // no need
   return -1;
 }
 
@@ -119,6 +125,12 @@ static void init_tls()
   extern char _tls_data;
   extern __thread char _tdata_begin, _tdata_end, _tbss_end;
   size_t tdata_size = &_tdata_end - &_tdata_begin;
+  // add below 
+  /*
+  asm valatile("mv %0, tp"
+       : "=r"(thread_pointer)
+       );
+  */
   memcpy(thread_pointer, &_tls_data, tdata_size);
   size_t tbss_size = &_tbss_end - &_tdata_end;
   memset(thread_pointer + tdata_size, 0, tbss_size);
@@ -132,6 +144,7 @@ void _init(int cid, int nc)
   // only single-threaded programs should ever get here.
   int ret = main(0, 0);
 
+  // add #ifdef DEBUG
   char buf[NUM_COUNTERS * 32] __attribute__((aligned(64)));
   char* pbuf = buf;
   for (int i = 0; i < NUM_COUNTERS; i++)
@@ -139,14 +152,14 @@ void _init(int cid, int nc)
       pbuf += sprintf(pbuf, "%s = %d\n", counter_names[i], counters[i]);
   if (pbuf != buf)
     printstr(buf);
-
+// add #endif
   exit(ret);
 }
 
 #undef putchar
 int putchar(int ch)
 {
-  static __thread char buf[64] __attribute__((aligned(64)));
+  static __thread char buf[64] __attribute__((aligned(64)));  // 64->128
   static __thread int buflen = 0;
 
   buf[buflen++] = ch;
